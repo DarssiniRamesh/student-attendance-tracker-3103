@@ -1,5 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import './App.css';
+import CalendarView from "./CalendarView";
 
 // --- Dummy seed data (for first load) ---
 const DEMO_STUDENTS = [
@@ -269,8 +270,8 @@ function TopBar({ loggedIn, user, logout, toggleSidebar }) {
   );
 }
 
+ 
 // DashBoard overview
-import CalendarView from "./CalendarView";
 
 function Dashboard({ students, attendance, onShowStudentCalendar }) {
   // Compute attendance rate
@@ -597,7 +598,7 @@ function LoginForm({ onLogin }) {
         onChange={e => setForm(f => ({ ...f, password: e.target.value }))}
       />
       <button className="primary-btn" type="submit">Sign In</button>
-      <p className="login-note">No signup required. This is a mock login for demo purposes.</p>
+      <p className="login-note" style={{ fontFamily: '-apple-system, BlinkMacSystemFont, Segoe UI, Roboto, Oxygen, Ubuntu, Cantarell, Fira Sans, Droid Sans, Helvetica Neue, sans-serif', textDecoration: 'underline' }}>Sign Up here</p>
     </form>
   );
 }
