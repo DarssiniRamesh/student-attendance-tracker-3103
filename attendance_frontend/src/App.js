@@ -96,7 +96,12 @@ function App() {
     localStorage.setItem('auth', JSON.stringify(auth));
   }, [auth]);
   const [route, setRoute] = useState('dashboard'); // dashboard | students | mark | stats | login
+
   const [sidebarOpen, setSidebarOpen] = useState(false); // For responsive
+
+  // Calendar modal state
+  const [showCalendar, setShowCalendar] = useState(false);
+  const [calendarStudent, setCalendarStudent] = useState(null);
 
   // Effect: persist any changes to local storage
   useEffect(() => {
@@ -154,6 +159,16 @@ function App() {
     setSidebarOpen(false);
   };
 
+  // Calendar handlers
+  const handleShowStudentCalendar = (student) => {
+    setCalendarStudent(student);
+    setShowCalendar(true);
+  };
+  const handleCloseCalendar = () => {
+    setShowCalendar(false);
+    setCalendarStudent(null);
+  };
+
   // MAIN RENDER
   if (!auth.loggedIn) {
     return (
@@ -178,21 +193,33 @@ function App() {
       <div className="content-area">
         <TopBar loggedIn={true} user={auth.user} logout={handleLogout} toggleSidebar={() => setSidebarOpen((v) => !v)} />
         <div className="content-scroll">
-          {/* Page Switching */}
-          {route === 'dashboard' ? (
-            <Dashboard students={students} attendance={attendance} />
-          ) : route === 'students' ? (
-            <StudentManager
-              students={students}
-              onAdd={addStudent}
-              onEdit={updateStudent}
-              onDelete={deleteStudent}
+          {/* Calendar Modal */}
+          {showCalendar && calendarStudent && (
+            <CalendarView
+              student={calendarStudent}
+              attendance={attendance}
+              onClose={handleCloseCalendar}
             />
-          ) : route === 'mark' ? (
-            <AttendanceMarker students={students} attendance={attendance} onMark={markAttendance} />
-          ) : route === 'stats' ? (
-            <AttendanceStats students={students} attendance={attendance} />
-          ) : null}
+          )}
+          {/* Page Switching */}
+          {!showCalendar && (
+            <>
+              {route === 'dashboard' ? (
+                <Dashboard students={students} attendance={attendance} onShowStudentCalendar={handleShowStudentCalendar} />
+              ) : route === 'students' ? (
+                <StudentManager
+                  students={students}
+                  onAdd={addStudent}
+                  onEdit={updateStudent}
+                  onDelete={deleteStudent}
+                />
+              ) : route === 'mark' ? (
+                <AttendanceMarker students={students} attendance={attendance} onMark={markAttendance} />
+              ) : route === 'stats' ? (
+                <AttendanceStats students={students} attendance={attendance} />
+              ) : null}
+            </>
+          )}
         </div>
       </div>
     </div>
@@ -243,7 +270,9 @@ function TopBar({ loggedIn, user, logout, toggleSidebar }) {
 }
 
 // DashBoard overview
-function Dashboard({ students, attendance }) {
+import CalendarView from "./CalendarView";
+
+function Dashboard({ students, attendance, onShowStudentCalendar }) {
   // Compute attendance rate
   const today = new Date().toISOString().slice(0, 10);
   const todayCount = students.length ? students.map(s => {
@@ -269,6 +298,37 @@ function Dashboard({ students, attendance }) {
       </div>
       <div className="dashboard-note">
         <p>Use the sidebar to manage students or record attendance. Red and white modern layout with full local storage. All data is saved on your browser.</p>
+      </div>
+
+      <div style={{ marginTop: 38 }}>
+        <h3 style={{ color: "var(--primary-red)", fontWeight: 500, marginBottom: 10, fontSize: "1.22em" }}>Student Calendars</h3>
+        <table className="student-table">
+          <thead>
+            <tr>
+              <th>Name</th>
+              <th>Roll</th>
+              <th>Calendar</th>
+            </tr>
+          </thead>
+          <tbody>
+            {students.length === 0 && (
+              <tr>
+                <td colSpan={3} style={{ textAlign: 'center', color: '#b1b1b1' }}>No students yet.</td>
+              </tr>
+            )}
+            {students.map(s => (
+              <tr key={s.id}>
+                <td>{s.name}</td>
+                <td>{s.roll}</td>
+                <td>
+                  <button className="ghost-btn small" style={{ minWidth: 90 }} onClick={() => onShowStudentCalendar(s)}>
+                    View Calendar
+                  </button>
+                </td>
+              </tr>
+            ))}
+          </tbody>
+        </table>
       </div>
     </div>
   );

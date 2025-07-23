@@ -420,3 +420,114 @@ input:focus, .login-input:focus {
 ::-webkit-scrollbar-thumb {background: #faf3f3; border-radius: 8px;}
 ::-webkit-scrollbar-track {background: var(--grey-bg);}
 * {box-sizing: border-box;}
+
+/* ---- Calendar Attendance View ---- */
+.calendar-view {
+  margin: 0 auto 0 auto;
+  max-width: 480px;
+  background: var(--white);
+  border-radius: 15px;
+  box-shadow: var(--box-shadow);
+  padding: 34px 18px 28px 18px;
+  border: 2px solid var(--red-dark);
+  min-width: 300px;
+}
+.calendar-view h2 {
+  color: var(--primary-red);
+  font-size: 1.45em;
+  font-weight: 600;
+  margin-bottom: 30px;
+  letter-spacing: 0.02em;
+}
+.cal-legend {
+  display: flex;
+  gap: 24px;
+  align-items: center;
+  margin-bottom: 18px;
+  font-size: 1.06em;
+  font-weight: 400;
+  color: var(--text-dark);
+}
+.cal-dot {
+  width: 20px;
+  height: 20px;
+  display: inline-block;
+  border-radius: 50%;
+  margin: 0 7px 0 18px;
+  vertical-align: middle;
+  box-shadow: 0 2px 8px 0 rgba(186,27,27,0.07);
+}
+.cal-dot:first-child { margin-left: 0;}
+/* Dot coloring */
+.cal-cell-present.cal-dot { background: var(--primary-red);}
+.cal-cell-absent.cal-dot { border: 2px solid var(--primary-red); background: var(--accent-muted);}
+.cal-cell-unmarked.cal-dot { border: 2px solid var(--grey-border); background: var(--grey-bg);}
+
+.calendar-grid {
+  display: flex;
+  flex-direction: column;
+  gap: 7px;
+  margin-bottom: 17px;
+}
+
+.calendar-row {
+  display: flex;
+  gap: 7px;
+}
+
+.calendar-cell {
+  width: 44px;
+  height: 44px;
+  border-radius: 10px;
+  background: var(--grey-accent);
+  box-shadow: 0 2px 7px 0 rgba(186,27,27,0.03);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 1.13em;
+  font-weight: 600;
+  position: relative;
+  cursor: default;
+  transition: box-shadow 0.14s;
+  color: var(--primary-red);
+  border: 2px solid var(--grey-border);
+}
+
+.cal-empty {
+  background: transparent !important;
+  border: none !important;
+  box-shadow: none !important;
+  cursor: default;
+}
+
+.cal-cell-present {
+  background: var(--primary-red);
+  color: var(--white);
+  border: 2px solid var(--primary-red);
+}
+
+.cal-cell-absent {
+  background: var(--accent-muted);
+  color: var(--primary-red);
+  border: 2px solid var(--primary-red);
+}
+
+.cal-cell-unmarked {
+  background: var(--grey-accent);
+  color: #b1b1b1;
+  border: 2px solid var(--grey-border);
+}
+
+.calendar-cell:hover,
+.calendar-cell:focus {
+  box-shadow: 0 4px 15px 0 rgba(186,27,27,0.18);
+  outline: 2px solid var(--primary-red);
+  z-index: 2;
+}
+
+.cal-cell-date {
+  font-size: 1.14em;
+  position: relative;
+  font-weight: bold;
+  z-index: 2;
+}
