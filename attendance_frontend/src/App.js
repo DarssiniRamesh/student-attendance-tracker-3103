@@ -1,8 +1,63 @@
 import React, { useEffect, useState } from 'react';
 import './App.css';
 
+// --- Dummy seed data (for first load) ---
+const DEMO_STUDENTS = [
+  { id: 101, name: "Olivia Turner", roll: "A1001" },
+  { id: 102, name: "Maxwell Reed", roll: "A1002" },
+  { id: 103, name: "Sophia Kim", roll: "B1003" },
+  { id: 104, name: "Liam Chen", roll: "B1004" },
+  { id: 105, name: "Ava Patel", roll: "C1005" },
+  { id: 106, name: "Lucas Becker", roll: "C1006" },
+  { id: 107, name: "Emma Rivera", roll: "C1007" }
+];
+// Attendance for 7 days, mix of present/absent (dates: recent 7 days)
+function demoAttendance(students) {
+  const today = new Date();
+  const recs = [];
+  for (let day = 0; day < 7; ++day) {
+    const d = new Date(today);
+    d.setDate(today.getDate() - day);
+    const date = d.toISOString().slice(0, 10);
+
+    students.forEach((student, sIdx) => {
+      // Stagger attendance: first four students almost always present, some diversity after
+      let status;
+      if (sIdx <= 3) { // mostly present
+        status = day === 2 && sIdx === 2 ? "absent" : "present";
+      } else {
+        // Day 0: present, days 3/6: absent, rest: present
+        status = (day === 3 && sIdx === 4) || (day === 6 && sIdx === 6)
+          ? "absent"
+          : "present";
+      }
+      // Skip 1-2 records to make the demo less mechanical
+      if ((student.id === 106 && day === 5) || (student.id === 107 && day === 1)) return;
+      recs.push({ studentId: student.id, date, status });
+    });
+  }
+  return recs;
+}
+
 // PUBLIC_INTERFACE
 function App() {
+  // SEED DEMO DATA: only if localStorage has none yet
+  React.useEffect(() => {
+    if (
+      !localStorage.getItem('students') ||
+      JSON.parse(localStorage.getItem('students')).length === 0
+    ) {
+      localStorage.setItem('students', JSON.stringify(DEMO_STUDENTS));
+      localStorage.setItem('attendance', JSON.stringify(demoAttendance(DEMO_STUDENTS)));
+    }
+    // Optional: Seed a demo user for polished login
+    if (
+      !localStorage.getItem('auth')
+    ) {
+      localStorage.setItem('auth', JSON.stringify({ loggedIn: false, user: null }));
+    }
+  }, []);
+
   // App-wide state
   const [auth, setAuth] = useState(() => {
     // Simulate logged-out by default
