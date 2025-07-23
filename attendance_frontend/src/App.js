@@ -39,36 +39,62 @@ function demoAttendance(students) {
   return recs;
 }
 
-// PUBLIC_INTERFACE
+/**
+ * PUBLIC_INTERFACE: Main App component.
+ *
+ * Improved initial data seeding logic:
+ *  - On very first app load, both localStorage and state are initialized with demo data.
+ *  - On any app load, state mirrors storage (seeded or persistent).
+ *  - Ensures users see data on first launch, no reload/conflicts.
+ */
 function App() {
-  // SEED DEMO DATA: only if localStorage has none yet
-  React.useEffect(() => {
-    if (
-      !localStorage.getItem('students') ||
-      JSON.parse(localStorage.getItem('students')).length === 0
-    ) {
+  // Utility: Ensure we have initial data (storage and state, both!)
+  function getInitialStudents() {
+    const stored = localStorage.getItem('students');
+    if (stored && JSON.parse(stored).length) {
+      // Already seeded, use stored.
+      return JSON.parse(stored);
+    } else {
+      // First run: seed and return demo data
       localStorage.setItem('students', JSON.stringify(DEMO_STUDENTS));
-      localStorage.setItem('attendance', JSON.stringify(demoAttendance(DEMO_STUDENTS)));
+      return DEMO_STUDENTS;
     }
-    // Optional: Seed a demo user for polished login
-    if (
-      !localStorage.getItem('auth')
-    ) {
-      localStorage.setItem('auth', JSON.stringify({ loggedIn: false, user: null }));
+  }
+  function getInitialAttendance(students) {
+    const stored = localStorage.getItem('attendance');
+    if (stored && JSON.parse(stored).length) {
+      return JSON.parse(stored);
+    } else {
+      const demo = demoAttendance(students);
+      localStorage.setItem('attendance', JSON.stringify(demo));
+      return demo;
     }
-  }, []);
+  }
+  function getInitialAuth() {
+    const stored = localStorage.getItem('auth');
+    if (stored) {
+      return JSON.parse(stored);
+    } else {
+      const seed = { loggedIn: false, user: null };
+      localStorage.setItem('auth', JSON.stringify(seed));
+      return seed;
+    }
+  }
 
-  // App-wide state
-  const [auth, setAuth] = useState(() => {
-    // Simulate logged-out by default
-    return JSON.parse(localStorage.getItem('auth')) || { loggedIn: false, user: null };
-  });
-  const [students, setStudents] = useState(() => {
-    return JSON.parse(localStorage.getItem('students')) || [];
-  });
-  const [attendance, setAttendance] = useState(() => {
-    return JSON.parse(localStorage.getItem('attendance')) || [];
-  });
+  // --- App-wide state initialization is SYNCED with seeded storage ---
+  const [students, setStudents] = useState(getInitialStudents);
+  const [attendance, setAttendance] = useState(() => getInitialAttendance(students));
+  const [auth, setAuth] = useState(getInitialAuth);
+  // Whenever students change, always keep attendance studentId integrity
+  useEffect(() => {
+    localStorage.setItem('students', JSON.stringify(students));
+  }, [students]);
+  useEffect(() => {
+    localStorage.setItem('attendance', JSON.stringify(attendance));
+  }, [attendance]);
+  useEffect(() => {
+    localStorage.setItem('auth', JSON.stringify(auth));
+  }, [auth]);
   const [route, setRoute] = useState('dashboard'); // dashboard | students | mark | stats | login
   const [sidebarOpen, setSidebarOpen] = useState(false); // For responsive
 
